@@ -5,6 +5,13 @@ app = Flask(__name__)
 DB_NAME = "rss.db"
 
 HTML = """
+<h2>Управление</h2>
+<form method="POST" action="/add_feed">
+    Добавить RSS: <input name="url"><button type="submit">Добавить</button>
+</form>
+<form method="POST" action="/add_keyword">
+    Добавить ключевое слово: <input name="word"><button type="submit">Добавить</button>
+</form>
 <h1>Новости</h1>
 {% for n in news %}
     <div>
@@ -14,13 +21,6 @@ HTML = """
     </div>
 {% endfor %}
 <hr>
-<h2>Управление</h2>
-<form method="POST" action="/add_feed">
-    Добавить RSS: <input name="url"><button type="submit">Добавить</button>
-</form>
-<form method="POST" action="/add_keyword">
-    Добавить ключевое слово: <input name="word"><button type="submit">Добавить</button>
-</form>
 """
 
 @app.route("/")
