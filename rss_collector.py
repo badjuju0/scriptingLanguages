@@ -1,6 +1,8 @@
 import feedparser
 import sqlite3
 from datetime import datetime
+import time
+import threading
 
 DB_NAME = "rss.db"
 
@@ -44,18 +46,38 @@ def save_news(item):
                 VALUES (?, ?, ?, ?)
             ''', (item['title'], item['summary'], item['link'], item['published']))
             conn.commit()
+            print(f"[{datetime.now()}] Новость добавлена: {item['title']}")
         except sqlite3.IntegrityError:
             pass  # уже есть
 
 def check_feeds():
     feeds, keywords = get_feeds_and_keywords()
+    found = False
     for url in feeds:
         feed = feedparser.parse(url)
         for entry in feed.entries:
             content = (entry.get('title', '') + ' ' + entry.get('summary', '')).lower()
             if any(word in content for word in keywords):
                 save_news(entry)
+                found = True
+    if not found:
+        print(f"[{datetime.now()}] Новостей не найдено.")
+
+def run_periodically(interval_minutes=30):
+    while True:
+        check_feeds()
+        time.sleep(interval_minutes * 60)
 
 if __name__ == "__main__":
     init_db()
-    check_feeds()
+    print(f"[{datetime.now()}] Инициализация завершена. Запуск цикла сбора новостей каждые 30 минут.")
+    thread = threading.Thread(target=run_periodically)
+    thread.daemon = True
+    thread.start()
+
+    # держим основной поток живым
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Остановка приложения.")
