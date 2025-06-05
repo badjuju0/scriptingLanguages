@@ -1,4 +1,17 @@
+1)Установите необходимые библиотеки (requirements.txt)
+pip install flask feedparser
 
+2)Запуск фонового сбора новостей
+python rss_collector.py
+
+3)Запуск веб-интерфейса
+python api.py
+
+endpoint:
+http://127.0.0.1:5000
+
+-----------------
+Через докер
 #Сборка образа 
 
 docker build -t rss_collector .
