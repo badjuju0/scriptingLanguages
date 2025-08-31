@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rss-app
+  template:
+    metadata:
+      labels:
+        app: rss-app
+    spec:
+      containers:
+        - name: rss-app
+          image: badjuju0/rss:latest
+          workingDir: /app
+          volumeMounts:
+            - name: rss-db
+              mountPath: /data
+          env:
+            - name: DB_PATH
+              value: /data/rss.db
+          ports:
+            - containerPort: 5000
+      volumes:
+        - name: rss-db
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rss-service
+spec:
+  selector:
+    app: rss-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: NodePort

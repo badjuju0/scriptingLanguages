@@ -4,8 +4,11 @@ import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev")  # для сессий
-DB_NAME = "rss.db"
 
+# Используем базу, созданную rss_collector.py
+DB_NAME = os.getenv("DB_PATH", "/data/rss.db")
+
+# HTML шаблоны
 HTML_LOGIN = """
 <h2>Вход</h2>
 <form method="POST" action="/login">
@@ -50,7 +53,10 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
     with sqlite3.connect(DB_NAME) as conn:
-        user = conn.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password)).fetchone()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username=? AND password=?",
+            (username, password)
+        ).fetchone()
         if user:
             session["user"] = username
             return redirect("/")
@@ -60,3 +66,6 @@ def login():
 def logout():
     session.pop("user", None)
     return redirect("/login")
+
+if __name__ == "__main__":
+    app.run(debug=False, port=5000, host='0.0.0.0')
